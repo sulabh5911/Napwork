@@ -9,14 +9,8 @@ connectDB();
 
 const app = express();
 
-// CORS — allow requests from the frontend dev server
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST", "DELETE"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
+// CORS — allow requests from any origin for now (useful for production testing)
+app.use(cors());
 
 // Body parsers
 app.use(express.json());
@@ -28,6 +22,11 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // API routes
 app.use("/api/products", productRoutes);
 
+// Root route
+app.get("/", (req, res) => {
+  res.send("Napworks API is running...");
+});
+
 // Global error handler
 app.use((err, _req, res, _next) => {
   console.error("Unhandled error:", err);
@@ -36,7 +35,7 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Napworks API server running on http://localhost:${PORT}`);
 });
