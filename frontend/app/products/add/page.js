@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageUpload from '../../components/ImageUpload';
 
-const API_BASE = 'http://localhost:5000/api/products';
+const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`;
 
 export default function AddProductPage() {
   const router = useRouter();
