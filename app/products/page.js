@@ -7,7 +7,7 @@ import FilterPanel from '../components/FilterPanel';
 import ProductTable from '../components/ProductTable';
 import Pagination from '../components/Pagination';
 
-const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`;
+const API_BASE = '/api/products';
 const ITEMS_PER_PAGE = 10;
 
 export default function ProductsPage() {

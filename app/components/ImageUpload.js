@@ -28,7 +28,7 @@ export default function ImageUpload({ images, onChange }) {
 
     // Validate file size
     if (file.size > MAX_SIZE_BYTES) {
-      alert(`File is too large. Maximum size is ${MAX_SIZE_MB}MB.`);
+      alert(`File is too large. Maximum size is ${MAX_SIZE_MB}MB per file.`);
       e.target.value = '';
       return;
     }

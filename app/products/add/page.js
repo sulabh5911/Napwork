@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ImageUpload from '../../components/ImageUpload';
 
-const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`;
+const API_BASE = '/api/products';
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -36,20 +36,47 @@ export default function AddProductPage() {
     setSaving(true);
 
     try {
-      const formData = new FormData();
-      formData.append('name', productName.trim());
-      formData.append('price', Number(price));
+      // 1. Upload images if there are any
+      let uploadedImageUrls = [];
+      const imageFiles = images.filter((img) => img && img.file).map((img) => img.file);
 
-      // Append images
-      images.forEach((img) => {
-        if (img && img.file) {
-          formData.append('images', img.file);
+      // Validate total size before uploading (4MB total)
+      const totalSize = imageFiles.reduce((sum, file) => sum + file.size, 0);
+      if (totalSize > 4 * 1024 * 1024) {
+        showToast('Total image size exceeds 4MB limit. Please use smaller photos.', 'error');
+        setSaving(false);
+        return;
+      }
+
+      if (imageFiles.length > 0) {
+        const uploadFormData = new FormData();
+        imageFiles.forEach((file) => uploadFormData.append('images', file));
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadFormData,
+        });
+
+        if (!uploadRes.ok) {
+          const errData = await uploadRes.json().catch(() => ({}));
+          throw new Error(errData.message || 'Failed to upload images');
         }
-      });
 
+        const uploadData = await uploadRes.json();
+        uploadedImageUrls = uploadData.urls || [];
+      }
+
+      // 2. Save product details
       const response = await fetch(API_BASE, {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: productName.trim(),
+          price: Number(price),
+          images: uploadedImageUrls,
+        }),
       });
 
       if (!response.ok) {
